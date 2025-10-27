@@ -12,6 +12,11 @@ data class Food(
     val image: String
 )
 
+data class Category (
+    var imagePath : Int,
+    var name : String
+)
+
 data class Order(
     @SerializedName("_id") val id: String,
     val userId: String,
