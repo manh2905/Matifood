@@ -1,5 +1,4 @@
-package com.example.matifood
-
+package com.example.matifood.activity.dasboard
 
 import android.content.Intent
 import android.os.Bundle
@@ -16,4 +15,3 @@ class FirstScreen : ComponentActivity() {
         }, 0)
     }
 }
-
