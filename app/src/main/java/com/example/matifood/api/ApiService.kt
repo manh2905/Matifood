@@ -2,6 +2,7 @@ package com.example.matifood.api
 
 import com.example.matifood.models.AuthResponse
 import com.example.matifood.models.CartItemRequest
+import com.example.matifood.models.Food
 import com.example.matifood.models.GenericResponse
 import com.example.matifood.models.GetCartResponse
 import com.example.matifood.models.ListFoodResponse
@@ -28,6 +29,11 @@ interface ApiService {
 
     @GET("api/food/list")
     suspend fun listFood(): Response<ListFoodResponse>
+
+    @GET("/api/food/category/{category}")
+    suspend fun getFoodsByCategory(
+        @Path("category") category: String
+    ): Response<ListFoodResponse>
 
     // --- Food (Endpoint "add" là MULTIPART, cần Auth) ---
     @Multipart // Đánh dấu đây là request Multipart

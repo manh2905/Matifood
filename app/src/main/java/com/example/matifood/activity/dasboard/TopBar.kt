@@ -42,7 +42,7 @@ import java.nio.file.WatchEvent
 @Preview
 fun TopBar () {
     Row(modifier = Modifier
-        .padding(top = 40.dp)
+        .padding(top = 20.dp)
         .padding(horizontal = 12.dp)
         .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -97,7 +97,7 @@ fun TopBar () {
             ),
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = 15.dp)
+                .padding(horizontal = 10.dp)
                 .height(60.dp)
                 .background(Color.Gray, CircleShape)
                 .shadow(

@@ -39,4 +39,26 @@ class FoodViewModel : ViewModel() {
             }
         }
     }
+
+    fun fetchFoodsByCategory(category: String) {
+        viewModelScope.launch {
+            isLoading = true
+            try {
+                val response = RetrofitClient.instance.getFoodsByCategory(category)
+                if (response.isSuccessful && response.body() != null) {
+                    val foodResponse = response.body()!!
+                    foodList.clear()
+                    foodList.addAll(foodResponse.data)
+                    errorMessage = null
+                } else {
+                    errorMessage = "Không thể tải dữ liệu"
+                }
+            } catch (e: Exception) {
+                errorMessage = "Lỗi mạng: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.example.matifood.activity.dasboard
 
+import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,8 +29,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import coil.compose.AsyncImage
 import com.example.matifood.R
+import com.example.matifood.activity.itemlistbycategory.ItemListActivity
 import com.example.matifood.models.Category
 import com.example.matifood.ui.theme.Typography
 
@@ -54,15 +57,18 @@ fun CategorySection (
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp), // khoảng cách giữa các item
-            contentPadding = PaddingValues(start = 16.dp, end = 8.dp)   // padding hai bên
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(start = 2.dp, end = 8.dp)
         ) {
             items(categories) { category ->
                 CategoryItem(
                     category = category,
                     modifier = Modifier.width(100.dp),
                     onItemClick = {
-                        // 👉 xử lý khi click vào category
+                        val intent= Intent(context, ItemListActivity::class.java).apply {
+                            putExtra("title", category.name)
+                        }
+                        startActivity(context,intent, null)
                     }
                 )
 
@@ -81,7 +87,7 @@ fun CategoryItem(
     Column(
         modifier = modifier
             .width(140.dp)
-            .height(160.dp)
+            .height(140.dp)
             .shadow(
                 elevation = 9.dp,
                 shape = RoundedCornerShape(20.dp),
@@ -102,13 +108,13 @@ fun CategoryItem(
             model = category.imagePath,
             contentDescription = null,
             modifier = Modifier
-                .size(100.dp) // 🔹 ảnh lớn hơn
+                .size(100.dp)
                 .padding(bottom = 8.dp)
 
         )
         Text(
             text = category.name,
-            fontSize = 14.sp, // 🔹 chữ to hơn
+            fontSize = 14.sp,
             color = Color.Black,
             style = Typography.labelSmall
         )

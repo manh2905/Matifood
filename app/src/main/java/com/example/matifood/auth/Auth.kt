@@ -33,7 +33,7 @@ class AuthInterceptor : Interceptor {
 object RetrofitClient {
 
 
-    private const val BASE_URL = "http://10.0.2.2:4000/"
+    private const val BASE_URL = "http://10.0.2.2:5000/"
 
     // Tạo OkHttpClient với Interceptor
     private val okHttpClient = OkHttpClient.Builder()

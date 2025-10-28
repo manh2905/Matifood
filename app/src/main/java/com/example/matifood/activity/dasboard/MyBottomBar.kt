@@ -42,10 +42,6 @@ fun MyBottomBar () {
         elevation = 8.dp,
         modifier = Modifier
             .height(80.dp)
-
-
-
-
     ){
         bottomMenuItemList.forEach { bottomBarItem ->
             BottomNavigationItem(
@@ -63,8 +59,8 @@ fun MyBottomBar () {
                     Text(text = bottomBarItem.label ,
                         fontSize = 13.sp, style = Typography.labelSmall,
 
-                        maxLines = 1,                // 🔹 chỉ cho phép hiển thị 1 dòng
-                        overflow = TextOverflow.Ellipsis, // 🔹 nếu quá dài -> thêm "..."
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
                             .padding(top = 2.dp)
 
