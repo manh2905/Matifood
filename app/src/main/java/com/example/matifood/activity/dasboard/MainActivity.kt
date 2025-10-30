@@ -4,12 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.*
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -18,17 +20,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.example.matifood.R
 import com.example.matifood.models.Category
 import com.example.matifood.ui.theme.Typography
 import com.example.matifood.viewmodel.FoodViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -57,7 +59,7 @@ val categoryList = listOf(
 fun MainScreen(viewModel: FoodViewModel = viewModel()) {
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
-    val listState = rememberLazyListState() //  Thêm state cho LazyColumn
+    val listState = rememberLazyListState()
 
     val foodList = viewModel.foodList
     val isLoading = viewModel.isLoading
@@ -106,13 +108,17 @@ fun MainScreen(viewModel: FoodViewModel = viewModel()) {
             }
 
             item {
+                ImageSlider()
+            }
+
+            item {
                 Text(
-                    text = "Hôm nay MATIFOOD có gì",
+                    text = "Hôm nay MATIFOOD có gì ?",
                     style = Typography.bodyLarge,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold ,
                     fontSize = 20.sp,
                     color = colorResource(R.color.orange),
-                    modifier = Modifier.padding(start = 16.dp, top = 8.dp)
+                    modifier = Modifier.padding(start = 16.dp, top = 1.dp)
                 )
             }
 
@@ -123,8 +129,9 @@ fun MainScreen(viewModel: FoodViewModel = viewModel()) {
             item {
                 Text(
                     text = "Món ăn có thể bạn sẽ thích",
-                    style = Typography.bodyLarge,
-                    fontWeight = FontWeight.Bold,
+                    style = Typography.titleLarge,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 18.sp,
                     modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                 )
             }
@@ -152,9 +159,38 @@ fun MainScreen(viewModel: FoodViewModel = viewModel()) {
                 }
             }
 
-            items(foodList.shuffled().take(10)) { food ->
-                FoodItemCard(food)
+            itemsIndexed(foodList.shuffled().take(20)) { index, food ->
+
+                var startAnim by remember { mutableStateOf(false) }
+                //  Kích hoạt animation lần lượt
+                LaunchedEffect(Unit) {
+                    delay(index * 5L) // trễ dần từng item cho đẹp
+                    startAnim = true
+                }
+
+                //  Animate vị trí ngang (slide-in)
+                val offsetX by animateDpAsState(
+                    targetValue = if (startAnim) 0.dp else (-100).dp,
+                    animationSpec = tween(durationMillis = 200),
+                    label = "slide"
+                )
+
+                //  Animate độ mờ (fade-in)
+                val alpha by animateFloatAsState(
+                    targetValue = if (startAnim) 1f else 0f,
+                    animationSpec = tween(durationMillis = 200),
+                    label = "fade"
+                )
+
+                Box(
+                    modifier = Modifier
+                        .offset(x = offsetX)
+                        .alpha(alpha)
+                ) {
+                    FoodItemCard(food)
+                }
             }
+
         }
     }
 }

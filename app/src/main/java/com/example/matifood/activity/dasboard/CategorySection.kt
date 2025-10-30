@@ -58,7 +58,7 @@ fun CategorySection (
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(start = 2.dp, end = 8.dp)
+            contentPadding = PaddingValues(start = 7.dp, end = 4.dp)
         ) {
             items(categories) { category ->
                 CategoryItem(
@@ -89,9 +89,9 @@ fun CategoryItem(
             .width(140.dp)
             .height(140.dp)
             .shadow(
-                elevation = 9.dp,
-                shape = RoundedCornerShape(20.dp),
-                clip = false
+                elevation = 5.dp,
+                shape = RoundedCornerShape(16.dp),
+                clip = true
             )
             .background(Color.White, RoundedCornerShape(20.dp))
             .border(

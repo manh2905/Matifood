@@ -1,12 +1,12 @@
 package com.example.matifood.activity.dasboard
 
-import android.graphics.Paint
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,10 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -31,30 +29,37 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.MotionScene
+import androidx.core.content.ContextCompat.startActivity
 import coil.compose.AsyncImage
 import com.example.matifood.R
+import com.example.matifood.activity.itemdetailscreen.DetailFoodScreen
 import com.example.matifood.models.Food
-import com.example.matifood.ui.theme.Typography
-import kotlinx.coroutines.handleCoroutineException
 import kotlin.random.Random
+import kotlin.random.nextInt
 
 
 @Composable
 fun FoodItemCard(item: Food) {
+    val randomBought = Random.nextInt(100,200)
     val randomRating = Random.nextDouble(4.0, 5.0)
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(16.dp),
-                clip = true
+                elevation = 4.dp,
+                shape = RoundedCornerShape(20.dp),
+                clip = false
             )
             .background(colorResource(R.color.white), shape = RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
             .padding(12.dp)
-            .clickable { },
+            .clickable {
+                val intent =  Intent(context, DetailFoodScreen::class.java).apply {
+                    putExtra("food", item)
+                }
+                startActivity(context,intent,null)
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(
@@ -98,11 +103,22 @@ fun FoodItemCard(item: Food) {
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
+
                 Text(
                     text = String.format("%.1f", randomRating),
                     color = Color.Gray,
                     fontSize = 14.sp,
                     modifier = Modifier.padding(start = 4.dp)
+                )
+
+
+                Spacer(modifier = Modifier.width(18.dp))
+
+                //  Số lượng đã bán
+                Text(
+                    text = String.format("%d", randomBought) + " đã bán" ,
+                    color = Color.Gray,
+                    fontSize = 14.sp
                 )
             }
 

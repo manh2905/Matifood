@@ -2,9 +2,7 @@ package com.example.matifood.api
 
 import com.example.matifood.models.AuthResponse
 import com.example.matifood.models.CartItemRequest
-import com.example.matifood.models.Food
 import com.example.matifood.models.GenericResponse
-import com.example.matifood.models.GetCartResponse
 import com.example.matifood.models.ListFoodResponse
 import com.example.matifood.models.ListOrderResponse
 import com.example.matifood.models.LoginRequest
@@ -58,8 +56,8 @@ interface ApiService {
     suspend fun removeFromCart(@Body request: CartItemRequest): Response<GenericResponse>
 
     // API "getCart" của bạn dùng POST (theo cartRoute.js) và không cần body
-    @POST("api/cart/get")
-    suspend fun getCart(): Response<GetCartResponse>
+//    @POST("api/cart/get")
+//    suspend fun getCart(): Response<GetCartResponse>
 
     // --- Order (Tất cả đều cần Auth, trừ verify và list) ---
     @POST("api/order/place")

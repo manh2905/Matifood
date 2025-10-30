@@ -1,7 +1,12 @@
 package com.example.matifood.models
 
+import android.annotation.SuppressLint
+import android.os.Parcel
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
-
+//import kotlinx.serialization.Serializable
+import kotlinx.parcelize.Parcelize
+import java.io.Serializable
 
 data class Food(
     @SerializedName("_id") val id: String,
@@ -10,7 +15,8 @@ data class Food(
     val price: Double,
     val category: String,
     val image: String
-)
+): Serializable
+
 
 data class Category (
     var imagePath : Int,
@@ -76,10 +82,10 @@ data class ListFoodResponse(
 )
 
 // Dùng cho API: /api/cart/get
-data class GetCartResponse(
-    val success: Boolean,
-    val cartData: Map<Food, Int> // Dựa trên userModel.js (cartData: { type: Object })
-)
+//data class GetCartResponse(
+//    val success: Boolean,
+//    val cartData: Map<Food, Int> // Dựa trên userModel.js (cartData: { type: Object })
+//)
 
 // Dùng cho API: /api/order/place
 data class PlaceOrderResponse(
