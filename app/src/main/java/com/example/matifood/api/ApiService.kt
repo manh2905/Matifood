@@ -2,7 +2,11 @@ package com.example.matifood.api
 
 import com.example.matifood.models.AuthResponse
 import com.example.matifood.models.CartItemRequest
+import com.example.matifood.models.EmptyBody
+import com.example.matifood.models.FoodIdsRequest
+import com.example.matifood.models.FoodResponse
 import com.example.matifood.models.GenericResponse
+import com.example.matifood.models.GetCartResponse
 import com.example.matifood.models.ListFoodResponse
 import com.example.matifood.models.ListOrderResponse
 import com.example.matifood.models.LoginRequest
@@ -10,8 +14,10 @@ import com.example.matifood.models.PlaceOrderRequest
 import com.example.matifood.models.PlaceOrderResponse
 import com.example.matifood.models.RegisterRequest
 import com.example.matifood.models.RemoveFoodRequest
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -44,6 +50,11 @@ interface ApiService {
         @Part image: MultipartBody.Part // Đây là tệp tin ảnh
     ): Response<GenericResponse>
 
+    @GET("api/food/{id}")
+    suspend fun getFoodById(
+        @Path("id") id: String
+    ): Response<FoodResponse>
+
     // --- Food (Endpoint "remove" dùng DELETE có body, cần Auth) ---
     @HTTP(method = "DELETE", path = "api/food/remove", hasBody = true)
     suspend fun removeFood(@Body request: RemoveFoodRequest): Response<GenericResponse>
@@ -52,12 +63,17 @@ interface ApiService {
     @POST("api/cart/add")
     suspend fun addToCart(@Body request: CartItemRequest): Response<GenericResponse>
 
+    @POST("api/food/multiple")
+    suspend fun getFoodsByIds(
+        @Body request: FoodIdsRequest
+    ): Response<ListFoodResponse>
+
     @POST("api/cart/remove")
     suspend fun removeFromCart(@Body request: CartItemRequest): Response<GenericResponse>
 
     // API "getCart" của bạn dùng POST (theo cartRoute.js) và không cần body
-//    @POST("api/cart/get")
-//    suspend fun getCart(): Response<GetCartResponse>
+    @POST("api/cart/get")
+    suspend fun getCart(@Body body: EmptyBody = EmptyBody()): Response<GetCartResponse>
 
     // --- Order (Tất cả đều cần Auth, trừ verify và list) ---
     @POST("api/order/place")

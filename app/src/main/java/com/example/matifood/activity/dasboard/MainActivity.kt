@@ -1,9 +1,11 @@
 package com.example.matifood.activity.dasboard
 
+import android.app.Application
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -26,15 +28,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.matifood.R
+
+import com.example.matifood.activity.dasboard.cart.CartScreen
+import com.example.matifood.activity.dasboard.home.HomeScreen
+import com.example.matifood.activity.dasboard.order.OrderScreen
+
+import com.example.matifood.activity.dasboard.profile.ProfileScreen
+import com.example.matifood.auth.TokenManager
 import com.example.matifood.models.Category
 import com.example.matifood.ui.theme.Typography
+import com.example.matifood.viewmodel.AuthViewModel
+import com.example.matifood.viewmodel.CartViewModel
 import com.example.matifood.viewmodel.FoodViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        TokenManager.init(this)
+        val authViewModel: AuthViewModel by viewModels()
+        authViewModel.checkLoginStatus()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -56,163 +73,28 @@ val categoryList = listOf(
 )
 
 @Composable
-fun MainScreen(viewModel: FoodViewModel = viewModel()) {
-    val scaffoldState = rememberScaffoldState()
-    val coroutineScope = rememberCoroutineScope()
-    val listState = rememberLazyListState()
-
-    val foodList = viewModel.foodList
-    val isLoading = viewModel.isLoading
-    val error = viewModel.errorMessage
-
-    // Gọi API khi vào màn hình
-    LaunchedEffect(Unit) {
-        viewModel.fetchFoods()
-    }
+fun MainScreen() {
+    val navController = rememberNavController()
+    val authViewModel: AuthViewModel = viewModel()
+    val viewModel: FoodViewModel = viewModel()
+    val cartViewModel: CartViewModel = viewModel()
 
     Scaffold(
-        bottomBar = { MyBottomBar() },
-        scaffoldState = scaffoldState,
-        floatingActionButton = {
-            // Chỉ hiển thị khi cuộn xuống đủ xa
-            if (listState.firstVisibleItemIndex > 2) {
-                FloatingActionButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            listState.animateScrollToItem(0) //  Cuộn lên đầu
-                        }
-                    },
-                    backgroundColor = colorResource(R.color.orange)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowUp,
-                        contentDescription = "Scroll to top",
-                        tint = colorResource(R.color.white)
-                    )
-                }
-            }
-        }
+        bottomBar = { MyBottomBar(navController) },
+        backgroundColor = colorResource(R.color.white)
     ) { paddingValues ->
 
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(colorResource(R.color.white))
-                .padding(paddingValues),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(19.dp)
+        NavHost(
+            navController = navController,
+            startDestination = "home",
+            modifier = Modifier.padding(paddingValues)
         ) {
-            item {
-                TopBar()
-            }
+            composable("home") { HomeScreen(viewModel) }
+            composable("cart") { CartScreen(authViewModel, cartViewModel, viewModel) }
+            composable("orders") { OrderScreen() }
+            composable("profile") { ProfileScreen(viewModel = authViewModel) }
 
-            item {
-                ImageSlider()
-            }
-
-            item {
-                Text(
-                    text = "Hôm nay MATIFOOD có gì ?",
-                    style = Typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold ,
-                    fontSize = 20.sp,
-                    color = colorResource(R.color.orange),
-                    modifier = Modifier.padding(start = 16.dp, top = 1.dp)
-                )
-            }
-
-            item {
-                CategorySection(categories = categoryList, showCategoryLoading = false)
-            }
-
-            item {
-                Text(
-                    text = "Món ăn có thể bạn sẽ thích",
-                    style = Typography.titleLarge,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(start = 16.dp, top = 8.dp)
-                )
-            }
-
-            if (isLoading) {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(80.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = colorResource(R.color.orange))
-                    }
-                }
-            }
-
-            if (error != null) {
-                item {
-                    Text(
-                        text = error,
-                        color = colorResource(R.color.purple_200),
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-            }
-
-            itemsIndexed(foodList.shuffled().take(20)) { index, food ->
-
-                var startAnim by remember { mutableStateOf(false) }
-                //  Kích hoạt animation lần lượt
-                LaunchedEffect(Unit) {
-                    delay(index * 5L) // trễ dần từng item cho đẹp
-                    startAnim = true
-                }
-
-                //  Animate vị trí ngang (slide-in)
-                val offsetX by animateDpAsState(
-                    targetValue = if (startAnim) 0.dp else (-100).dp,
-                    animationSpec = tween(durationMillis = 200),
-                    label = "slide"
-                )
-
-                //  Animate độ mờ (fade-in)
-                val alpha by animateFloatAsState(
-                    targetValue = if (startAnim) 1f else 0f,
-                    animationSpec = tween(durationMillis = 200),
-                    label = "fade"
-                )
-
-                Box(
-                    modifier = Modifier
-                        .offset(x = offsetX)
-                        .alpha(alpha)
-                ) {
-                    FoodItemCard(food)
-                }
-            }
 
         }
     }
 }
-
-
-//@Composable
-//fun FoodItem(food: com.example.matifood.models.Food) {
-//    Column(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .background(colorResource(R.color.white))
-//            .padding(8.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        AsyncImage(
-//            model = "http://10.0.2.2:4000/image/${food.image}",
-//            contentDescription = food.name,
-//            modifier = Modifier
-//                .size(130.dp)
-//                .padding(bottom = 8.dp)
-//        )
-//        Text(text = food.name, style = Typography.bodySmall)
-//        Text(text = "${food.price} VNĐ", style = Typography.labelSmall)
-//    }
-//}

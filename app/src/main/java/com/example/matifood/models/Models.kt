@@ -48,6 +48,12 @@ data class RegisterRequest(
     val password: String
 )
 
+data class FoodResponse(
+    val success: Boolean,
+    val data: Food?,
+    val message: String? = null
+)
+
 // Dùng cho API: /api/cart/add và /api/cart/remove
 data class CartItemRequest(
     val itemId: String
@@ -81,11 +87,13 @@ data class ListFoodResponse(
     val data: List<Food>
 )
 
+
+
 // Dùng cho API: /api/cart/get
-//data class GetCartResponse(
-//    val success: Boolean,
-//    val cartData: Map<Food, Int> // Dựa trên userModel.js (cartData: { type: Object })
-//)
+data class GetCartResponse(
+    val success: Boolean,
+    val cartData: Map<String, Int>
+)
 
 // Dùng cho API: /api/order/place
 data class PlaceOrderResponse(
@@ -105,4 +113,12 @@ data class ListOrderResponse(
 data class GenericResponse(
     val success: Boolean,
     val message: String
+)
+
+data class EmptyBody(val empty: String = "")
+
+
+// dùng req food theo id
+data class FoodIdsRequest(
+    val ids: List<String>
 )

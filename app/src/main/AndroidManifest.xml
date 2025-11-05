@@ -46,6 +46,13 @@
             android:theme="@style/Theme.MATIFOOD2" >
 
         </activity>
+        <activity
+            android:name=".activity.auth.AuthActivity"
+            android:exported="true"
+            android:label=""
+            android:theme="@style/Theme.MATIFOOD2" >
+
+        </activity>
     </application>
 
 </manifest>

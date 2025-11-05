@@ -1,5 +1,7 @@
 package com.example.matifood.activity.dasboard
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,14 +29,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.matifood.R
 import com.example.matifood.ui.theme.Typography
 import com.example.matifood.ui.theme.poppinFontFamily
+import kotlin.math.log
 
 @Composable
-fun MyBottomBar () {
+fun MyBottomBar (navController: NavController ) {
     val bottomMenuItemList = prepareBottomMenu()
     val context = LocalContext.current
+
+    val prefs = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+    val token = prefs.getString("token", null)
     var selectedItem by remember { mutableStateOf("Home") }
 
     BottomAppBar (
@@ -47,7 +54,16 @@ fun MyBottomBar () {
             BottomNavigationItem(
                 selected = (selectedItem==bottomBarItem.label),
                 onClick = {
+                    selectedItem = bottomBarItem.label
+                    when (bottomBarItem.label) {
+                        "Home" -> navController.navigate("home")
+                        "Giỏ hàng" -> navController.navigate("cart")
+                        "Đơn hàng" -> navController.navigate("orders")
+                        "Tôi" -> {
 
+                                navController.navigate("profile")
+                        }
+                    }
                 }, icon = {
                     Icon(
                         painter = bottomBarItem.iconSelected,
@@ -90,8 +106,8 @@ fun prepareBottomMenu() : List<BottomBarItem> {
 
 }
 
-@Preview
-@Composable
-fun SimpleComposablePreview() {
-    MyBottomBar()
-}
+//@Preview
+//@Composable
+//fun SimpleComposablePreview() {
+//    MyBottomBar()
+//}

@@ -1,5 +1,8 @@
 package com.example.matifood.auth
 
+import android.content.Context
+import android.content.SharedPreferences
+import android.util.Log
 import com.example.matifood.api.ApiService
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -8,25 +11,44 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 // Giả sử bạn vẫn có object TokenManager để lưu token
-object TokenManager { var authToken: String? = null }
+object TokenManager {
+    var authToken: String? = null
+    private lateinit var prefs: SharedPreferences
+
+    fun init(context: Context) {
+        prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        authToken = prefs.getString("auth_token", null)
+    }
+
+    fun saveToken(token: String) {
+        authToken = token
+        prefs.edit().putString("auth_token", token).apply()
+    }
+
+    fun clearToken() {
+        authToken = null
+        prefs.edit().remove("auth_token").apply()
+    }
+
+    fun getToken(): String? = authToken
+}
 
 class AuthInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        // Lấy request gốc
         val originalRequest = chain.request()
+        val token = TokenManager.getToken()
 
-        // Lấy token
-        val token = TokenManager.authToken
+        // ✅ log debug xem token có null không
+        Log.i("fix","🔑 Sending token: $token")
 
-        // Nếu không có token, cứ gửi request đi
-        if (token == null) {
-            return chain.proceed(originalRequest)
-        }
         val requestBuilder = originalRequest.newBuilder()
-            .addHeader("token", token) // Key là "token"
+        if (!token.isNullOrEmpty()) {
+            // ✅ header name phải chính xác: "token"
+            requestBuilder.addHeader("token", token)
+        }
 
-        val request = requestBuilder.build()
-        return chain.proceed(request)
+        val newRequest = requestBuilder.build()
+        return chain.proceed(newRequest)
     }
 }
 
