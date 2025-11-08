@@ -31,7 +31,7 @@ import com.example.matifood.ui.theme.Typography
 
 @Composable
 fun TitleNumberRow(
-    numberInCart: Int = 1,
+    numberAddToCart: Int = 1,
     item: Food,
     onIncrement: () -> Unit = {},
     onDecrement: () -> Unit = {},
@@ -87,7 +87,7 @@ fun TitleNumberRow(
 
             // Số lượng
             Text(
-                text = "$numberInCart",
+                text = "$numberAddToCart",
                 color = Color.Black,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
@@ -137,5 +137,5 @@ fun prev () {
         category = "Pizza",
         image = "uploads/pizza.png"
     )
-    TitleNumberRow(item = food, numberInCart = 1)
+    TitleNumberRow(item = food, numberAddToCart = 1)
 }

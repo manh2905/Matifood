@@ -1,8 +1,10 @@
 package com.example.matifood.activity.itemdetailscreen
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +27,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,58 +35,67 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.matifood.R
+import com.example.matifood.auth.TokenManager
 import com.example.matifood.models.Food
+import com.example.matifood.viewmodel.AuthViewModel
+import com.example.matifood.viewmodel.CartViewModel
 import com.example.matifood.viewmodel.FoodViewModel
 
 
 class DetailFoodScreen : AppCompatActivity() {
-//    private lateinit var item: Food
+
+    private val cartVM: CartViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_detail_food_screen)
 
+        val item = intent.getSerializableExtra("food") as Food
 
-        var item : Food = intent.getSerializableExtra("food") as Food
         setContent {
+            val isLogin : Boolean = TokenManager.getToken() != null
+
             DetailScreen(
                 item = item,
-                onClickBack = {finish()}
+                isLogin = isLogin,
+                onClickBack = { finish() },
+                onAddToCart = { itemId, quantity ->
+                    cartVM.addManyToCart(itemId, quantity)
+                }
             )
         }
-
     }
 }
+
 
 @Composable
 fun DetailScreen(
     item: Food,
     onClickBack: () -> Unit = {},
-    onAddToCart: () -> Unit = {},
+    onAddToCart: (String, Int) -> Unit,
+    isLogin: Boolean,
 ) {
-    var numberInCart by remember { mutableStateOf(0) }
+
+    val context = LocalContext.current
+    var numberAddToCart by remember { mutableStateOf(0) }
 
     val viewModel: FoodViewModel = viewModel()
     val items = viewModel.foodList
     val isLoading = viewModel.isLoading
     val error = viewModel.errorMessage
 
-    // Gọi API để lấy danh sách món cùng loại
     LaunchedEffect(Unit) {
         viewModel.fetchFoodsByCategory(item.category)
     }
@@ -93,7 +105,7 @@ fun DetailScreen(
     ) {
         val (footer, column) = createRefs()
 
-        // 📦 Phần nội dung chính
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -110,11 +122,11 @@ fun DetailScreen(
             Spacer(modifier = Modifier.height(1.dp))
 
             TitleNumberRow(
-                numberInCart = numberInCart,
+                numberAddToCart = numberAddToCart,
                 item = item,
-                onIncrement = { numberInCart++ },
+                onIncrement = { numberAddToCart++ },
                 onDecrement = {
-                    if (numberInCart >= 1) numberInCart--
+                    if (numberAddToCart >= 1) numberAddToCart--
                 }
             )
 
@@ -202,19 +214,10 @@ fun DetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 30.dp, vertical = 16.dp)
-                    .padding(top = 6.dp), // padding bên trong, không bị cắt mép ngoài
+                    .padding(top = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                // Tổng giá
-//                Text(
-//                    text = "Tổng: ${(item.price * numberInCart).toInt()} USD",
-//                    fontSize = 18.sp,
-//                    fontWeight = FontWeight.Bold,
-//                    color = Color.White
-//                )
-
-                // Nút thêm vào giỏ
                 Box(
                     modifier = Modifier
                         .height(300.dp)
@@ -222,11 +225,41 @@ fun DetailScreen(
                         .clip(RoundedCornerShape(30.dp))
 //                        .background(Color(0xFF4CAF50))
                         .background(colorResource(R.color.orange))
-                        .clickable { onAddToCart() }
+                        .clickable {
+                            when {
+                                !isLogin -> {
+                                    Toast.makeText(
+                                        context,
+                                        "Vui lòng đăng nhập trước khi thêm vào giỏ hàng!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+
+                                numberAddToCart <= 0 -> {
+                                    Toast.makeText(
+                                        context,
+                                        "Vui lòng chọn số lượng!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+
+                                else -> {
+                                    onAddToCart(item.id, numberAddToCart)
+                                    Toast.makeText(
+                                        context,
+                                        "Đã thêm $numberAddToCart ${item.name} vào giỏ hàng",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    numberAddToCart = 0
+                                }
+                            }
+
+
+                        }
                         .wrapContentSize(Alignment.Center)
                 ) {
                     Text(
-                        text = "Thêm vào giỏ hàng - ${(item.price * numberInCart).toInt()} USD",
+                        text = "Thêm vào giỏ hàng - ${(item.price * numberAddToCart).toInt()} USD",
                         color = Color.White,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold

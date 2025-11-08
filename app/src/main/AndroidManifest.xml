@@ -29,30 +29,32 @@
             android:name=".activity.dasboard.MainActivity"
             android:exported="true"
             android:label=""
-            android:theme="@style/Theme.MATIFOOD">
-
-        </activity>
+            android:theme="@style/Theme.MATIFOOD" />
+        <activity
+            android:name=".activity.payment.PaymentActivity"
+            android:exported="true"
+            android:label=""
+            android:theme="@style/Theme.MATIFOOD2" />
         <activity
             android:name=".activity.itemlistbycategory.ItemListActivity"
             android:exported="true"
             android:label=""
-            android:theme="@style/Theme.MATIFOOD">
-
-        </activity>
+            android:theme="@style/Theme.MATIFOOD" />
         <activity
             android:name=".activity.itemdetailscreen.DetailFoodScreen"
             android:exported="true"
             android:label=""
-            android:theme="@style/Theme.MATIFOOD2" >
-
-        </activity>
+            android:theme="@style/Theme.MATIFOOD2" />
         <activity
             android:name=".activity.auth.AuthActivity"
             android:exported="true"
             android:label=""
-            android:theme="@style/Theme.MATIFOOD2" >
-
-        </activity>
+            android:theme="@style/Theme.MATIFOOD2" />
+        <activity
+            android:name=".activity.search.SearchActivity"
+            android:exported="true"
+            android:label=""
+            android:theme="@style/Theme.MATIFOOD2" />
     </application>
 
 </manifest>

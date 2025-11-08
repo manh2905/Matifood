@@ -40,7 +40,7 @@ class AuthViewModel() : ViewModel()  {
 
 
     fun loginUser(email: String, password: String) {
-        _isLoggedIn.value = true
+
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
@@ -48,6 +48,7 @@ class AuthViewModel() : ViewModel()  {
                 if (res.isSuccessful && res.body()?.success == true) {
                     val token = res.body()?.token ?: ""
                     TokenManager.saveToken(token)
+                    _isLoggedIn.value = true
                     _authState.value = AuthState.Success(token)
                 } else {
                     _authState.value = AuthState.Error(res.body()?.message ?: "Đăng nhập thất bại")

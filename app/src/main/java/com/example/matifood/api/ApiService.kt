@@ -8,12 +8,16 @@ import com.example.matifood.models.FoodResponse
 import com.example.matifood.models.GenericResponse
 import com.example.matifood.models.GetCartResponse
 import com.example.matifood.models.ListFoodResponse
-import com.example.matifood.models.ListOrderResponse
 import com.example.matifood.models.LoginRequest
+import com.example.matifood.models.ManyCartItemRequest
+import com.example.matifood.models.MobileOrderRequest
 import com.example.matifood.models.PlaceOrderRequest
 import com.example.matifood.models.PlaceOrderResponse
 import com.example.matifood.models.RegisterRequest
 import com.example.matifood.models.RemoveFoodRequest
+import com.example.matifood.models.SearchResponse
+import com.example.matifood.models.UserOrderResult
+import com.example.matifood.models.VerifyOrderRequest
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -39,29 +43,19 @@ interface ApiService {
         @Path("category") category: String
     ): Response<ListFoodResponse>
 
-    // --- Food (Endpoint "add" là MULTIPART, cần Auth) ---
-    @Multipart // Đánh dấu đây là request Multipart
-    @POST("api/food/add")
-    suspend fun addFood(
-        @Part("name") name: RequestBody,
-        @Part("description") description: RequestBody,
-        @Part("price") price: RequestBody,
-        @Part("category") category: RequestBody,
-        @Part image: MultipartBody.Part // Đây là tệp tin ảnh
-    ): Response<GenericResponse>
 
     @GET("api/food/{id}")
     suspend fun getFoodById(
         @Path("id") id: String
     ): Response<FoodResponse>
 
-    // --- Food (Endpoint "remove" dùng DELETE có body, cần Auth) ---
-    @HTTP(method = "DELETE", path = "api/food/remove", hasBody = true)
-    suspend fun removeFood(@Body request: RemoveFoodRequest): Response<GenericResponse>
-
-    // --- Cart (Tất cả đều cần Auth) ---
+    //  Cart
     @POST("api/cart/add")
     suspend fun addToCart(@Body request: CartItemRequest): Response<GenericResponse>
+
+
+    @POST("api/cart/addMany")
+    suspend fun addManyToCart(@Body request: ManyCartItemRequest): Response<GenericResponse>
 
     @POST("api/food/multiple")
     suspend fun getFoodsByIds(
@@ -75,14 +69,23 @@ interface ApiService {
     @POST("api/cart/get")
     suspend fun getCart(@Body body: EmptyBody = EmptyBody()): Response<GetCartResponse>
 
-    // --- Order (Tất cả đều cần Auth, trừ verify và list) ---
-    @POST("api/order/place")
-    suspend fun placeOrder(@Body request: PlaceOrderRequest): Response<PlaceOrderResponse>
 
+    @POST("api/order/placemobile")
+    suspend fun placeOrderMobile(
+        @Body request: MobileOrderRequest
+    ): Response<PlaceOrderResponse>
+
+    @POST("api/order/verify")
+    suspend fun verifyOrder(@Body request: VerifyOrderRequest): Response<GenericResponse>
+
+    //  Order
     @POST("api/order/orderusers")
-    suspend fun getUserOrders(): Response<ListOrderResponse>
+    suspend fun getUserOrders(@Body body: EmptyBody = EmptyBody()): Response<UserOrderResult>
 
-    // Các API không cần Auth
-    @POST("api/order/list")
-    suspend fun listAllOrders(): Response<ListOrderResponse>
+    //search
+    @GET("api/food/search")
+    suspend fun searchFoods(@Query("query") query: String): Response<SearchResponse>
+
+
+
 }

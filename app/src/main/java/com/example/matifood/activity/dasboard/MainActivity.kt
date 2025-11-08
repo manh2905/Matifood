@@ -44,6 +44,7 @@ import com.example.matifood.ui.theme.Typography
 import com.example.matifood.viewmodel.AuthViewModel
 import com.example.matifood.viewmodel.CartViewModel
 import com.example.matifood.viewmodel.FoodViewModel
+import com.example.matifood.viewmodel.OrderViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -69,7 +70,7 @@ val categoryList = listOf(
     Category(R.drawable.menu_6, "Pure Veg"),
     Category(R.drawable.menu_7, "Pasta"),
     Category(R.drawable.menu_8, "Noodles"),
-    Category(R.drawable.menu_9, "Gà rán")
+
 )
 
 @Composable
@@ -78,6 +79,7 @@ fun MainScreen() {
     val authViewModel: AuthViewModel = viewModel()
     val viewModel: FoodViewModel = viewModel()
     val cartViewModel: CartViewModel = viewModel()
+    val orderViewModel: OrderViewModel = viewModel()
 
     Scaffold(
         bottomBar = { MyBottomBar(navController) },
@@ -91,10 +93,8 @@ fun MainScreen() {
         ) {
             composable("home") { HomeScreen(viewModel) }
             composable("cart") { CartScreen(authViewModel, cartViewModel, viewModel) }
-            composable("orders") { OrderScreen() }
+            composable("orders") { OrderScreen(authViewModel, orderViewModel ) }
             composable("profile") { ProfileScreen(viewModel = authViewModel) }
-
-
         }
     }
 }

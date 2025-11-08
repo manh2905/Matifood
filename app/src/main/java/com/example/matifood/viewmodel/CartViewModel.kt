@@ -7,6 +7,7 @@ import com.example.matifood.auth.RetrofitClient
 import com.example.matifood.auth.TokenManager
 import com.example.matifood.models.CartItemRequest
 import com.example.matifood.models.Food
+import com.example.matifood.models.ManyCartItemRequest
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +33,9 @@ class CartViewModel : ViewModel() {
     private val _cartData = MutableStateFlow<Map<String, Int>>(emptyMap())
     val cartData: StateFlow<Map<String, Int>> = _cartData
 
+    private val _isEmty = MutableStateFlow(false)
+    val isEmty: StateFlow<Boolean> = _isEmty
+
 
     /**  Lấy giỏ hàng người dùng từ API */
     fun fetchCart() {
@@ -42,6 +46,7 @@ class CartViewModel : ViewModel() {
                 val response = api.getCart()
                 Log.i("fix", response.body()?.cartData.toString())
                 if (response.isSuccessful && response.body()?.success == true) {
+                    _isEmty.value = _cartData.value.isEmpty()
                     _cartData.value = response.body()!!.cartData
                     _cartState.value = CartState.Success
                 } else {
@@ -56,14 +61,33 @@ class CartViewModel : ViewModel() {
     }
 
 
-    /** ➕ Thêm món vào giỏ */
     fun addToCart(itemId: String) {
         viewModelScope.launch {
             try {
                 _cartState.value = CartState.Loading
                 val response = api.addToCart(CartItemRequest(itemId))
                 if (response.isSuccessful && response.body()?.success == true) {
-                    fetchCart() // cập nhật lại giỏ
+
+                    fetchCart()
+                } else {
+                    _cartState.value = CartState.Error("Thêm món thất bại")
+                }
+            } catch (e: Exception) {
+                _cartState.value = CartState.Error("Lỗi: ${e.message}")
+            }
+        }
+    }
+
+    fun addManyToCart(itemId: String, quantity: Int) {
+        viewModelScope.launch {
+            try {
+                _cartState.value = CartState.Loading
+                val response = api.addManyToCart(ManyCartItemRequest(itemId, quantity))
+                Log.i("CartVM", "🟢 Sending addManyToCart: item=$itemId, qty=$quantity")
+                Log.i("CartVM", "🟠 Token=${TokenManager.authToken}")
+                Log.i("CartVM", "🟣 Response=${response.code()} | ${response.body()}")
+                if (response.isSuccessful && response.body()?.success == true) {
+                    fetchCart()
                 } else {
                     _cartState.value = CartState.Error("Thêm món thất bại")
                 }
@@ -74,7 +98,6 @@ class CartViewModel : ViewModel() {
     }
 
 
-    /** ➖ Xóa món khỏi giỏ */
     fun removeFromCart(itemId: String) {
         viewModelScope.launch {
             try {
@@ -91,7 +114,6 @@ class CartViewModel : ViewModel() {
         }
     }
 
-    /** 🧹 Xóa dữ liệu cục bộ (khi đăng xuất hoặc refresh) */
     fun clearLocalCart() {
         _cartData.value = emptyMap()
         _cartState.value = CartState.Idle
@@ -108,14 +130,22 @@ class CartViewModel : ViewModel() {
         // Huỷ job cũ (nếu người dùng bấm nhanh)
         updateJob?.cancel()
 
-        // Đợi 1000ms, nếu không bấm tiếp thì mới gọi API
+        // Đợi , nếu không bấm tiếp thì mới gọi API
         updateJob = viewModelScope.launch {
-            delay(1000)
+            delay(200)
             if (delta > 0)
-                RetrofitClient.instance.addToCart(CartItemRequest(foodId))
+//                RetrofitClient.instance.addToCart(CartItemRequest(foodId))
+                addToCart(foodId)
+
             else
-                RetrofitClient.instance.removeFromCart(CartItemRequest(foodId))
+//                RetrofitClient.instance.removeFromCart(CartItemRequest(foodId))
+                removeFromCart(foodId)
         }
+    }
+
+    fun checkCartStatus() {
+
+        _isEmty.value = _cartData.value.isEmpty()
     }
 }
 

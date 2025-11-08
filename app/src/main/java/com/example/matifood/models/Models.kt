@@ -1,11 +1,7 @@
 package com.example.matifood.models
 
-import android.annotation.SuppressLint
-import android.os.Parcel
-import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 //import kotlinx.serialization.Serializable
-import kotlinx.parcelize.Parcelize
 import java.io.Serializable
 
 data class Food(
@@ -59,6 +55,11 @@ data class CartItemRequest(
     val itemId: String
 )
 
+data class ManyCartItemRequest(
+    val itemId: String,
+    val quantity : Int
+)
+
 // Dùng cho API: /api/food/remove
 data class RemoveFoodRequest(
     val id: String
@@ -71,6 +72,27 @@ data class PlaceOrderRequest(
     val address: String // Backend của bạn có 'address: { type: String }'
 )
 
+data class MobileOrderRequest(
+    val items: List<OrderItem>,
+    val amount: Double,
+    val address: String
+)
+
+data class OrderItem(
+    val name: String,
+    val quantity: Int
+): Serializable
+
+// dùng req food theo id
+data class FoodIdsRequest(
+    val ids: List<String>
+)
+
+
+data class VerifyOrderRequest(
+    val orderId: String?,
+    val success: String
+)
 
 // --- Các lớp Response (Dùng để nhận về) ---
 
@@ -87,7 +109,12 @@ data class ListFoodResponse(
     val data: List<Food>
 )
 
-
+data class PlaceOrderResponse(
+    val success: Boolean,
+    val clientSecret: String?,
+    val orderId: String?,
+    val message: String?
+)
 
 // Dùng cho API: /api/cart/get
 data class GetCartResponse(
@@ -95,18 +122,21 @@ data class GetCartResponse(
     val cartData: Map<String, Int>
 )
 
-// Dùng cho API: /api/order/place
-data class PlaceOrderResponse(
-    val success: Boolean,
-    val session_url: String?,
-    val message: String?
+// Dùng cho API: /api/order/orderusers và /api/order/list
+
+data class OrderResponse(
+    val _id: String,
+    val userId: String,
+    val items: List<OrderItem>,
+    val amount: Double,
+    val address: String,
+    val payment: Boolean,
+    val status: String
 )
 
-// Dùng cho API: /api/order/orderusers và /api/order/list
-data class ListOrderResponse(
+data class UserOrderResult(
     val success: Boolean,
-    val data: List<Order>?,
-    val message: String?
+    val data: List<OrderResponse>?
 )
 
 // Dùng cho các phản hồi chung (Thêm/Xóa món, Thêm/Xóa giỏ hàng)
@@ -115,10 +145,13 @@ data class GenericResponse(
     val message: String
 )
 
+
+data class SearchResponse(
+    val success: Boolean,
+    val data: List<Food>?
+)
 data class EmptyBody(val empty: String = "")
 
 
-// dùng req food theo id
-data class FoodIdsRequest(
-    val ids: List<String>
-)
+
+

@@ -91,6 +91,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("com.stripe:stripe-android:22.0.0")
+    // Include the financial connections SDK to support US bank account as a payment method
+    implementation("com.stripe:financial-connections:22.0.0")
 
 }
 

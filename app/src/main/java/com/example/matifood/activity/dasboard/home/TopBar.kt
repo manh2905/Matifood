@@ -1,5 +1,6 @@
 package com.example.matifood.activity.dasboard.home
 
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
@@ -24,17 +25,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.matifood.R
+import com.example.matifood.activity.search.SearchActivity
 import com.example.matifood.ui.theme.Typography
+import com.stripe.android.customersheet.injection.CustomerSheetViewModelModule_Companion_ContextFactory.context
 
 @Composable
 @Preview
 fun TopBar () {
+    val context = LocalContext.current
     Row(modifier = Modifier
         .padding(top = 20.dp)
         .padding(horizontal = 12.dp)
@@ -69,7 +74,11 @@ fun TopBar () {
             },
             trailingIcon = {
                 IconButton(onClick = {
-
+                    if (text.isNotBlank()) {
+                        val intent = Intent(context, SearchActivity::class.java)
+                        intent.putExtra("query", text)
+                        context.startActivity(intent)
+                    }
 
                 }) {
                     Icon(

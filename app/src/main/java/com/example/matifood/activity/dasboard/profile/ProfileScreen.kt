@@ -2,6 +2,7 @@ package com.example.matifood.activity.dasboard.profile
 
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -109,6 +110,7 @@ fun ProfileScreen(viewModel: AuthViewModel = viewModel()) {
                     Button(
                         onClick = {
                             viewModel.logoutUser()
+                            Toast.makeText(context, "Đã đăng xuất", Toast.LENGTH_SHORT).show()
                                   },
                         modifier = Modifier
                             .fillMaxWidth()
